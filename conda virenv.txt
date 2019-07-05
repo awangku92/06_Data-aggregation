@@ -1,0 +1,31 @@
+open cmd
+
+TO CREATE EMPTY VIRTUALENV AT BASE PATH
+>conda create -n <virenv_name> 
+
+TO CREATE EMPTY VIRTUALENV AT CURRENT PATH
+>conda create -p <virenv_name>
+
+TO CREATE VIRTUALENV WITH PYTHON ONLY
+>conda create -<path> <virenv_name> python=X.X
+
+TO CREATE VIRTUALENV WITH ALL ANACONDA PACKAGE
+>conda create -<path> <virenv_name> anaconda
+
+TO ACTIVATE VIRTUALENV AT BASE
+>activate <virenv_name>
+
+TO ACTIVATE VIRTUALENV AT CURRENT PATH
+>activate .\<virenv_name>
+
+TO INSTALL PACKAGE AT CURRENT VIRENV
+>conda install <package_name>
+>pip install <package_name> ; //if pip is installed
+
+REMOVE VIRTUALENV
+>conda remove -n@-p <virenv_name>
+>conda remove -n@-p <virenv_name> --all; // --all to remove all package installed 
+
+REMOVE UNUSED PACKEGE AND CACHES
+>conda clean -all
+
