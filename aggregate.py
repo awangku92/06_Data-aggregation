@@ -1,42 +1,74 @@
-import pandas as pd
-import os, glob
+import pandas as pd, numpy as np
+import os, glob, patoolib
 
-def merge_files():
-    # GET PATH
-    # os.getcwd() #get current working directory
-    dataPath = os.path.join(os.getcwd(), "seperatedData")
-    mergedPath = os.path.join(os.getcwd(), "merged.txt")
+def pivot(extractedPath):
+	extractedFileList = os.listdir("Extracted")
+	for filename in extractedFileList:
+		df = pd.read_csv(os.path.join(extractedPath, filename), header=0, index_col=None)
+		# manipulate data
+		df = df.replace(-9999,np.nan)
+		df["Temp"]=df["Temp"]/10.0
+		# table = pd.pivot_table(df, index=["ID"], columns="Year", values="Temp")
+		table = pd.pivot_table(df, index=["ID", "Year"], values=["Temp","DewTemp","WindSpeed"], 
+			aggfunc={ 'Temp' : [min, max, np.mean],
+					  'DewTemp' : [min, max, np.mean],
+					  'WindSpeed' : [min, max, np.mean] } )
+		print(table)
 
-    #change dir to extracted file
-    os.chdir(dataPath)
+		# write to new csv file
+		if "Pivoted_Data.csv" not in extractedPath:
+			table.to_csv(os.path.join(extractedPath, "Pivoted_Data.csv"))
+		else:
+			print(filename + " already exist!")
+		
+	return
 
-    # used to get all file extension .txt
-    #fileList = glob.glob("*.txt")
+def extractFiles(compressedData, extractedPath):
+	# patoolib can extract .zip, .gz, .tar, .rar, etc..
+	# patoolib.extract_archive('<zip_filename>', outdir='<path>', program='<zip_program>')
+	# if no outdir, file will be extracted to current dir
+	# patoolib.extract_archive('testing.rar')
 
-    #init dataframe and get all file extension .txt into dataframe
-    dfList = [f for f_ in [glob.glob(e) for e in ['*.txt']] for f in f_]
-    # print(dfList)
+	filesList = [f for f_ in [glob.glob(e) for e in ['*.zip']] for f in f_]
+    # print (filesList)
 
-    tempDf = []
+	if not os.path.exists(extractedPath):
+		os.makedirs(extractedPath)
 
-    # loop filelist to merge all files
-    for filename in dfList:
-        # print(filename)
-        df = pd.read_csv(filename, header=0)
-        # print(df)
-        tempDf.append(df)
+	extractedFileList = os.listdir("Extracted")
+	extractedFile = []
+	for ef in extractedFileList:
+		extractedFile.append(os.path.splitext(ef)[0])
+		# print (extractedFile)
 
-    # merge file and save to .txt file
-    mergeDf = pd.concat(tempDf,axis=0)
-    # print(mergeDf)
-    mergeDf.to_csv(mergedPath, index=None)
+	for f in filesList:
+        # convert from list to string
+		filename = f.split('.')[0]
+		# print (filename)
+		# print (extractedFile)
 
-    return
+		if filename not in extractedFile:
+            # print(f)
+			patoolib.extract_archive(f, outdir=extractedPath)
+		else:
+			print(filename + " already exist!")
 
+	return
 
 # main method
 def main():
-    merge_files()
+	print('Start')
+
+	compressedData = os.path.join(os.getcwd(), "Concatenated-Merged.zip")
+	extractedPath = os.path.join(os.getcwd(), "Extracted")
+
+	print('Extracting File')
+	extractFiles(compressedData, extractedPath)
+	print('Pivoting table')
+	pivot(extractedPath)
+
+	print('Finish')
+    
 
 if __name__ == '__main__':
     main()
