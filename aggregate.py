@@ -4,22 +4,23 @@ import os, glob, patoolib
 def pivot(extractedPath):
 	extractedFileList = os.listdir("Extracted")
 	for filename in extractedFileList:
-		df = pd.read_csv(os.path.join(extractedPath, filename), header=0, index_col=None)
-		# manipulate data
-		df = df.replace(-9999,np.nan)
-		df["Temp"]=df["Temp"]/10.0
-		# table = pd.pivot_table(df, index=["ID"], columns="Year", values="Temp")
-		table = pd.pivot_table(df, index=["ID", "Year"], values=["Temp","DewTemp","WindSpeed"], 
-			aggfunc={ 'Temp' : [min, max, np.mean],
-					  'DewTemp' : [min, max, np.mean],
-					  'WindSpeed' : [min, max, np.mean] } )
-		print(table)
+		if filename in ['Concatenated-Merged.csv']:
+			df = pd.read_csv(os.path.join(extractedPath, filename), header=0, index_col=None)
+			# manipulate data
+			df = df.replace(-9999,np.nan)
+			df["Temp"]=df["Temp"]/10.0
+			# table = pd.pivot_table(df, index=["ID"], columns="Year", values="Temp")
+			table = pd.pivot_table(df, index=["ID", "Year"], values=["Temp","DewTemp","WindSpeed"], 
+				aggfunc={ 'Temp' : [min, max, np.mean],
+						  'DewTemp' : [min, max, np.mean],
+						  'WindSpeed' : [min, max, np.mean] } )
+			print(table)
 
-		# write to new csv file
-		if "Pivoted_Data.csv" not in extractedPath:
-			table.to_csv(os.path.join(extractedPath, "Pivoted_Data.csv"))
-		else:
-			print(filename + " already exist!")
+	# write to new csv file
+	if "Pivoted_Data.csv" not in extractedFileList:
+		table.to_csv(os.path.join(extractedPath, "Pivoted_Data.csv"))
+	else:
+		print(filename + " already exist!")
 		
 	return
 
