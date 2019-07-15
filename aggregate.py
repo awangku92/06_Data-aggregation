@@ -17,8 +17,8 @@ def pivot(extractedPath):
 			print(table)
 
 	# write to new csv file
-	if "Pivoted_Data.csv" not in extractedFileList:
-		table.to_csv(os.path.join(extractedPath, "Pivoted_Data.csv"))
+	if "Pivoted_Data.txt" not in extractedFileList:
+		table.to_csv(os.path.join(extractedPath, "Pivoted_Data.txt"))
 	else:
 		print(filename + " already exist!")
 		
